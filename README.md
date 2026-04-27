@@ -79,7 +79,7 @@ services:
 
 | Campo | O que ajustar |
 |---|---|
-| `image` | Substitua `YOUR_USERNAME` pelo seu usuário do GitHub |
+| `image` | Tag da imagem — use `latest` ou uma versão específica como `v1.0.0` |
 | `/opt/claude-workstation/claude` | Caminho no host para os dados do Claude Code |
 | `/opt/claude-workstation/ssh` | Caminho no host onde está o `authorized_keys` criado no passo 2 |
 | `/opt/claude-workstation/gitconfig` | Caminho para o seu `.gitconfig` no host (usado pelo agente nos commits) |
@@ -102,15 +102,22 @@ No primeiro acesso, execute `claude` para autenticar com sua conta Anthropic. A 
 
 ## Publicar uma nova versão da imagem
 
-1. Atualize o arquivo `VERSION` com o novo semver
-2. Faça o commit, crie a tag e envie:
+O fluxo de release usa o arquivo `VERSION` como fonte de verdade. O GitHub Actions valida que o conteúdo do arquivo bate com a tag Git antes de publicar.
+
+Atualize o `VERSION`, faça o commit e crie a tag:
 
 ```bash
+echo "x.y.z" > VERSION
 git commit -am "chore: bump version to x.y.z"
 git tag vx.y.z
+```
+
+Publique o commit e a tag:
+
+```bash
 git push && git push --tags
 ```
 
-O GitHub Actions valida a versão, constrói a imagem e publica no GHCR com a tag de versão e `latest`.
+O workflow `Build and Release` constrói a imagem e publica no GHCR com a tag de versão e `latest`. Fazer push para `main` sem tag executa apenas a validação do build, sem publicar.
 
-Fazer push para `main` sem tag executa apenas a validação do build, sem publicar.
+O guia completo de fechamento de versão — incluindo pré-condições, gate local de build e validação da cadeia externa — está em `AGENTS.md`.

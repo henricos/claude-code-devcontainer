@@ -58,6 +58,80 @@ GitHub Actions validates that `VERSION` matches the tag, then builds and pushes:
 
 Pushing to `main` without a tag triggers a build-only run (no publish) — useful for validating Dockerfile changes.
 
+## Fechar uma versão (guia para o agente)
+
+Este guia define o fluxo canônico que o agente deve seguir quando o usuário pedir para fechar uma versão, soltar uma release, criar uma tag ou publicar uma nova imagem.
+
+**Regras invioláveis:**
+- Nunca prossiga se a branch atual não for `main`.
+- Nunca prossiga se `main` local não estiver alinhada com `origin/main`.
+- Nunca prossiga se a working tree não estiver limpa.
+- Nunca faça commit, stash ou reset automático para "destravar" a release.
+
+### Passo 1 — Verificar pré-condições
+
+```bash
+git branch --show-current
+git fetch origin
+git rev-parse HEAD
+git rev-parse origin/main
+git diff --quiet && git diff --cached --quiet
+```
+
+Aborte com mensagem clara se qualquer condição não for atendida.
+
+### Passo 2 — Determinar a próxima versão
+
+Leia a versão atual do arquivo `VERSION` e calcule as três opções canônicas. Pergunte ao usuário qual bump aplicar antes de continuar:
+
+- `patch` — correções e ajustes menores
+- `minor` — novas funcionalidades sem quebra de compatibilidade
+- `major` — mudanças que alteram o comportamento de forma significativa
+
+Confirme a versão escolhida antes de executar qualquer comando.
+
+### Passo 3 — Gate local
+
+Execute o build local para garantir que a imagem constrói sem erros antes de criar a tag:
+
+```bash
+docker build -t claude-code-devcontainer:release-gate .
+```
+
+Se o build falhar, **aborte**. Não crie tag sobre código que não builda.
+
+### Passo 4 — Aplicar o bump
+
+Atualize o arquivo `VERSION`, faça o commit e crie a tag:
+
+```bash
+echo "X.Y.Z" > VERSION
+git add VERSION
+git commit -m "chore: bump version to X.Y.Z"
+git tag vX.Y.Z
+```
+
+### Passo 5 — Publicar
+
+```bash
+git push && git push --tags
+```
+
+Se o push falhar, **aborte** e informe que a cadeia externa não foi disparada.
+
+### Passo 6 — Validar a cadeia externa
+
+Após o push, confirme:
+
+1. **GitHub Actions** — existe uma run do workflow `Build and Release` para a tag; o job terminou com `success`.
+2. **GHCR** — o pacote `ghcr.io/henricos/claude-code-devcontainer` tem as tags `vX.Y.Z` e `latest` publicadas e visibilidade `Public`.
+
+Aguarde a conclusão do workflow antes de declarar sucesso. Se o workflow falhar, reporte e pare.
+
+### Passo 7 — Resumo final
+
+Apresente um resumo com: versão anterior, nova versão, tipo de bump, commit, tag, status do workflow e tags confirmadas no GHCR.
+
 ## Conventions
 
 - The non-root user inside the container is `claude` (home: `/home/claude`)
