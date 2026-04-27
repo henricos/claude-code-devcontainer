@@ -14,7 +14,7 @@ A Docker image that packages Claude Code (Anthropic CLI) with a full development
 ├── VERSION                 # Single source of truth for the image version
 ├── .github/
 │   └── workflows/
-│       └── release-ghcr.yml  # CI/CD: build on main, publish on tag
+│       └── release-ghcr.yml  # CI/CD: build and publish on tag push
 ├── CLAUDE.md               # Loads this file via @AGENTS.md
 └── AGENTS.md               # This file
 ```
@@ -55,8 +55,6 @@ git push && git push --tags
 GitHub Actions validates that `VERSION` matches the tag, then builds and pushes:
 - `ghcr.io/henricos/claude-code-devcontainer:v1.1.0`
 - `ghcr.io/henricos/claude-code-devcontainer:latest`
-
-Pushing to `main` without a tag triggers a build-only run (no publish) — useful for validating Dockerfile changes.
 
 ## Fechar uma versão (guia para o agente)
 
@@ -138,4 +136,4 @@ Apresente um resumo com: versão anterior, nova versão, tipo de bump, commit, t
 - SSH port inside the container is `22`; mapped to `2222` externally in the compose example
 - `~/.claude` is always a volume — never bake MCP or GSD config into the image
 - All apt layers that change rarely come before nvm/npm layers to maximize cache hits
-- One job in the workflow, two conditional paths (main vs tag) to keep the pipeline simple
+- The workflow triggers only on tag push (`v*.*.*`) — no CI runs on plain commits to main

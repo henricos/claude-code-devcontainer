@@ -118,6 +118,6 @@ Publique o commit e a tag:
 git push && git push --tags
 ```
 
-O workflow `Build and Release` constrói a imagem e publica no GHCR com a tag de versão e `latest`. Fazer push para `main` sem tag executa apenas a validação do build, sem publicar.
+O workflow `Build and Release` é disparado apenas por push de tag — constrói a imagem e publica no GHCR com a tag de versão e `latest`.
 
 O guia completo de fechamento de versão — incluindo pré-condições, gate local de build e validação da cadeia externa — está em `AGENTS.md`.
