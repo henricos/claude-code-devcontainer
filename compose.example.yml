@@ -1,0 +1,18 @@
+services:
+  claude-code-devcontainer:
+    image: ghcr.io/henricos/claude-code-devcontainer:latest
+    container_name: claude-code-devcontainer
+    volumes:
+      # Claude Code config, OAuth login, memory, and settings
+      - /opt/claude-workstation/claude:/home/claude/.claude
+      # SSH authorized_keys for your access
+      - /opt/claude-workstation/ssh:/home/claude/.ssh
+      # Git identity used by the agent when committing
+      - /opt/claude-workstation/gitconfig:/home/claude/.gitconfig:ro
+      # Your code repositories
+      - /home/user/projects:/home/claude/work
+      # Optional: expose host Docker daemon so the agent can build images
+      # - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "2222:22"
+    restart: unless-stopped
