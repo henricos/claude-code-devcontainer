@@ -40,8 +40,10 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     && apt-get update && apt-get install -y gh \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Non-root user
-RUN useradd -ms /bin/bash claude
+# Non-root user — rename the ubuntu user (UID 1000) to claude so it aligns with typical host UIDs
+RUN usermod -l claude ubuntu && \
+    usermod -d /home/claude -m claude && \
+    groupmod -n claude ubuntu
 
 # Switch to claude for nvm + Node + global npm packages
 USER claude

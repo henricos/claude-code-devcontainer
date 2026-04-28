@@ -5,13 +5,15 @@ services:
     volumes:
       # Claude Code config, OAuth login, memory, and settings
       - /opt/claude-workstation/claude:/home/claude/.claude
-      # SSH authorized_keys for your access
+      # SSH keys directory: authorized_keys (inbound access) + private key for GitHub (outbound access)
       - /opt/claude-workstation/ssh:/home/claude/.ssh
       # Git identity used by the agent when committing
       - /opt/claude-workstation/gitconfig:/home/claude/.gitconfig:ro
       # Your code repositories
       - /home/user/projects:/home/claude/work
-      # Optional: expose host Docker daemon so the agent can build images
+      # Docker socket — gives the agent full access to the host Docker daemon (equivalent to root on
+      # the host). Keep commented unless you explicitly need the agent to build or run containers.
+      # Note: paths in docker run -v are resolved on the HOST, not inside the container.
       # - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "2222:22"

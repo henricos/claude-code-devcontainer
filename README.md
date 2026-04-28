@@ -16,32 +16,35 @@ Uma imagem Docker que executa o [Claude Code](https://claude.ai/code) como uma e
 | Automação de browser | playwright |
 | IA | Claude Code CLI |
 
-O container roda como usuário não-root (`claude`) e expõe SSH na porta 22. Nenhuma configuração de MCP ou do Claude é embutida na imagem — tudo fica em um volume persistente montado em `/home/claude/.claude`.
+O container roda como usuário não-root (`claude`, UID 1000) e expõe SSH na porta 22. Nenhuma configuração de MCP ou do Claude é embutida na imagem — tudo fica em um volume persistente montado em `/home/claude/.claude`.
 
 ## Início rápido
 
 ### 1. Preparar o diretório de dados do Claude
 
-Crie o diretório que vai persistir as configurações, sessão OAuth e memória do Claude Code entre reinicializações do container.
+Crie o diretório que vai persistir as configurações, sessão OAuth e memória do Claude Code entre reinicializações do container. O usuário `claude` dentro do container tem UID 1000, então os diretórios de volume precisam pertencer a esse UID no host.
 
 ```bash
 mkdir -p /opt/claude-workstation/claude
+chown 1000:1000 /opt/claude-workstation/claude
 ```
 
 ### 2. Preparar o diretório SSH
 
-O acesso ao container é feito exclusivamente por chave SSH. Crie um diretório dedicado para isso — não use seu `~/.ssh` pessoal diretamente, para evitar que o container tenha acesso às suas outras chaves privadas.
+O container usa o mesmo diretório `.ssh` para dois propósitos distintos: receber conexões SSH vindas de fora (SSH de entrada) e autenticar em serviços externos como o GitHub (SSH de saída).
 
-Você pode copiar uma chave pública existente ou gerar uma nova exclusivamente para o container:
+#### 2a. SSH de entrada — quem pode acessar o container
 
-Opção A — copiar uma chave existente:
+O arquivo `authorized_keys` lista as chaves públicas autorizadas a fazer SSH no container. Você pode usar uma chave existente ou gerar uma dedicada.
+
+Para copiar uma chave existente:
 
 ```bash
 mkdir -p /opt/claude-workstation/ssh
 cp ~/.ssh/id_ed25519.pub /opt/claude-workstation/ssh/authorized_keys
 ```
 
-Opção B — gerar uma chave nova dedicada:
+Para gerar uma chave nova dedicada ao container:
 
 ```bash
 mkdir -p /opt/claude-workstation/ssh
@@ -49,7 +52,43 @@ ssh-keygen -t ed25519 -f ~/.ssh/id_claude_workstation -C "claude-workstation"
 cp ~/.ssh/id_claude_workstation.pub /opt/claude-workstation/ssh/authorized_keys
 ```
 
-O entrypoint da imagem corrige automaticamente a propriedade do diretório SSH ao iniciar, portanto não é necessário nenhum `chown` manual.
+#### 2b. SSH de saída — acesso do container ao GitHub
+
+Para que o container possa clonar repositórios privados e fazer push, ele precisa de uma chave SSH própria registrada na sua conta do GitHub. Essa chave pode ser diferente da usada para entrar no container.
+
+Gere a chave no host e salve-a no diretório de volume:
+
+```bash
+ssh-keygen -t ed25519 -f /opt/claude-workstation/ssh/id_github -C "claude-container-github"
+```
+
+Exiba a chave pública e adicione-a em [github.com/settings/keys](https://github.com/settings/keys):
+
+```bash
+cat /opt/claude-workstation/ssh/id_github.pub
+```
+
+Crie o arquivo de configuração SSH para que o container use essa chave ao se conectar ao GitHub:
+
+```bash
+cat > /opt/claude-workstation/ssh/config << 'EOF'
+Host github.com
+  IdentityFile ~/.ssh/id_github
+  IdentitiesOnly yes
+EOF
+```
+
+#### Permissões do diretório SSH
+
+O SSH recusa conexões se as permissões do diretório e dos arquivos de chave estiverem abertas demais. O container não ajusta essas permissões — elas precisam estar corretas no host antes de subir o container.
+
+```bash
+chown -R 1000:1000 /opt/claude-workstation/ssh
+chmod 700 /opt/claude-workstation/ssh
+chmod 600 /opt/claude-workstation/ssh/authorized_keys
+chmod 600 /opt/claude-workstation/ssh/id_github
+chmod 600 /opt/claude-workstation/ssh/config
+```
 
 ### 3. Configurar o Compose
 
@@ -80,11 +119,13 @@ services:
 | Campo | O que ajustar |
 |---|---|
 | `image` | Tag da imagem — use `latest` ou uma versão específica como `v1.0.0` |
-| `/opt/claude-workstation/claude` | Caminho no host para os dados do Claude Code |
-| `/opt/claude-workstation/ssh` | Caminho no host onde está o `authorized_keys` criado no passo 2 |
+| `/opt/claude-workstation/claude` | Caminho no host para os dados do Claude Code (deve pertencer a UID 1000) |
+| `/opt/claude-workstation/ssh` | Caminho no host do diretório SSH — contém `authorized_keys` (entrada) e a chave do GitHub (saída) |
 | `/opt/claude-workstation/gitconfig` | Caminho para o seu `.gitconfig` no host (usado pelo agente nos commits) |
 | `/home/user/projects` | Caminho no host dos seus repositórios de código |
-| `docker.sock` | Descomente se quiser que o agente possa executar builds Docker no host |
+| `docker.sock` | Socket do Docker — leia a nota abaixo antes de descomentar |
+
+O volume `docker.sock` dá ao container acesso direto ao daemon Docker do host, o que equivale a permissão de root na máquina. Qualquer `docker run -v /caminho:/destino` executado de dentro do container resolve `/caminho` no filesystem do host, não no container. Mantenha comentado a menos que você precise explicitamente que o agente construa ou execute containers.
 
 ### 4. Subir o container
 
@@ -99,6 +140,48 @@ ssh -p 2222 claude@<ip-do-seu-servidor>
 ```
 
 No primeiro acesso, execute `claude` para autenticar com sua conta Anthropic. A sessão persiste entre reinicializações pelo volume `~/.claude`.
+
+### 6. Validar a configuração
+
+Após entrar no container, execute os comandos abaixo para confirmar que tudo está funcionando. Cada um verifica uma parte independente da configuração.
+
+Confirma que a chave SSH de saída está registrada corretamente no GitHub:
+
+```bash
+ssh -T git@github.com
+```
+
+Confirma que o volume do `.gitconfig` está montado e a identidade está configurada:
+
+```bash
+git config --global user.name
+git config --global user.email
+```
+
+Confirma que os volumes do Claude Code e de projetos estão montados:
+
+```bash
+ls ~/.claude
+ls ~/work
+```
+
+Confirma que o Claude Code está instalado e acessível:
+
+```bash
+claude --version
+```
+
+Confirma a autenticação do GitHub CLI (fluxo OAuth, independente da chave SSH):
+
+```bash
+gh auth status
+```
+
+Se o `docker.sock` estiver habilitado, confirma acesso ao daemon Docker do host:
+
+```bash
+docker ps
+```
 
 ## Publicar uma nova versão da imagem
 
