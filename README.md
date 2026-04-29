@@ -1,4 +1,4 @@
-# claude-code-devcontainer
+# claude-workstation
 
 Uma imagem Docker que executa o [Claude Code](https://claude.ai/code) como uma estação de trabalho de IA persistente. Projetada para ambientes homelab onde você quer um agente de desenvolvimento sempre disponível e acessível via SSH.
 
@@ -102,9 +102,10 @@ Abra o `compose.yml` e ajuste os valores conforme o seu ambiente. Os campos que 
 
 ```yaml
 services:
-  claude-code-devcontainer:
-    image: ghcr.io/henricos/claude-code-devcontainer:latest
-    container_name: claude-code-devcontainer
+  claude-workstation:
+    image: ghcr.io/henricos/claude-workstation:latest
+    container_name: claude-workstation
+    hostname: workstation
     volumes:
       - /opt/claude-workstation/claude:/home/claude/.claude
       - /opt/claude-workstation/ssh:/home/claude/.ssh
@@ -135,9 +136,23 @@ docker compose up -d
 
 ### 5. Conectar via SSH
 
+Conexão direta:
+
 ```bash
 ssh -p 2222 claude@<ip-do-seu-servidor>
 ```
+
+Para evitar digitar usuário, porta e IP a cada vez, adicione uma entrada no `~/.ssh/config` da sua máquina:
+
+```
+Host claude-workstation
+    HostName <ip-do-seu-servidor>
+    User claude
+    Port 2222
+    IdentityFile ~/.ssh/id_claude_workstation
+```
+
+Depois basta usar `ssh claude-workstation`. O prompt dentro do container será `claude@workstation`.
 
 No primeiro acesso, execute `claude` para autenticar com sua conta Anthropic. A sessão persiste entre reinicializações pelo volume `~/.claude`.
 

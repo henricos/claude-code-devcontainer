@@ -1,4 +1,4 @@
-# Agent Context: claude-code-devcontainer
+# Agent Context: claude-workstation
 
 ## What this repository is
 
@@ -36,7 +36,7 @@ A Docker image that packages Claude Code (Anthropic CLI) with a full development
 ## Local build
 
 ```bash
-docker build -t claude-code-devcontainer .
+docker build -t claude-workstation .
 ```
 
 ## Release workflow
@@ -53,8 +53,8 @@ git push && git push --tags
 ```
 
 GitHub Actions validates that `VERSION` matches the tag, then builds and pushes:
-- `ghcr.io/henricos/claude-code-devcontainer:v1.1.0`
-- `ghcr.io/henricos/claude-code-devcontainer:latest`
+- `ghcr.io/henricos/claude-workstation:v1.1.0`
+- `ghcr.io/henricos/claude-workstation:latest`
 
 ## Fechar uma versão (guia para o agente)
 
@@ -93,7 +93,7 @@ Confirme a versão escolhida antes de executar qualquer comando.
 Execute o build local para garantir que a imagem constrói sem erros antes de criar a tag:
 
 ```bash
-docker build -t claude-code-devcontainer:release-gate .
+docker build -t claude-workstation:release-gate .
 ```
 
 Se o build falhar, **aborte**. Não crie tag sobre código que não builda.
@@ -122,7 +122,7 @@ Se o push falhar, **aborte** e informe que a cadeia externa não foi disparada.
 Após o push, confirme:
 
 1. **GitHub Actions** — existe uma run do workflow `Build and Release` para a tag; o job terminou com `success`.
-2. **GHCR** — o pacote `ghcr.io/henricos/claude-code-devcontainer` tem as tags `vX.Y.Z` e `latest` publicadas e visibilidade `Public`.
+2. **GHCR** — o pacote `ghcr.io/henricos/claude-workstation` tem as tags `vX.Y.Z` e `latest` publicadas e visibilidade `Public`.
 
 Aguarde a conclusão do workflow antes de declarar sucesso. Se o workflow falhar, reporte e pare.
 

@@ -69,7 +69,7 @@ RUN mkdir -p /var/run/sshd \
 
 LABEL org.opencontainers.image.version="${IMAGE_VERSION}" \
       org.opencontainers.image.created="${BUILD_DATE}" \
-      org.opencontainers.image.source="https://github.com/henricos/claude-code-devcontainer"
+      org.opencontainers.image.source="https://github.com/henricos/claude-workstation"
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

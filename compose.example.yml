@@ -1,7 +1,8 @@
 services:
-  claude-code-devcontainer:
-    image: ghcr.io/henricos/claude-code-devcontainer:latest
-    container_name: claude-code-devcontainer
+  claude-workstation:
+    image: ghcr.io/henricos/claude-workstation:latest
+    container_name: claude-workstation
+    hostname: workstation
     volumes:
       # Claude Code config, OAuth login, memory, and settings
       - /opt/claude-workstation/claude:/home/claude/.claude

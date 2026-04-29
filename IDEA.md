@@ -1,4 +1,4 @@
-Projeto: claude-code-devcontainer
+Projeto: claude-workstation
 
 1. Objetivo
 Criar uma Estação de Trabalho IA (Workstation) persistente e isolada para rodar o Claude Code (CLI oficial da Anthropic) dentro de um homelab. O projeto visa centralizar as ferramentas de desenvolvimento (Node, Python, Git) em uma imagem Docker customizada, permitindo que o agente de IA manipule repositórios locais com persistência de sessão e acesso remoto via SSH.
@@ -81,9 +81,9 @@ jobs:
 5. Sugestão de compose.example (Portainer)
 ```
 services:
-  claude-code-devcontainer:
-    image: ghcr.io/SEU_USUARIO/claude-code-devcontainer:latest
-    container_name: claude-code-devcontainer
+  claude-workstation:
+    image: ghcr.io/SEU_USUARIO/claude-workstation:latest
+    container_name: claude-workstation
     restart: unless-stopped
     ports:
       - "2222:22" # Acesso SSH local via porta alternativa
@@ -103,7 +103,7 @@ networks:
 ```
 
 6. Checklist de Implementação
-- Criar o repositório claude-code-devcontainer no GitHub.
+- Criar o repositório claude-workstation no GitHub.
 - Subir o Dockerfile e o .github/workflows/publish.yml.
 - No seu servidor, garanta que o arquivo /dados/disco1/containers/volumes/claudebox/ssh/authorized_keys contenha sua chave pública.
 - Execute o deploy via Portainer.
