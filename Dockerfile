@@ -58,6 +58,10 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | b
 # Make nvm available in login shells (SSH sessions source .profile)
 RUN echo '. "$NVM_DIR/nvm.sh"' >> /home/claude/.profile
 
+# Auto-attach to (or create) a persistent tmux session on SSH login
+RUN echo 'if [ -n "$SSH_CONNECTION" ] && [ -z "$TMUX" ]; then exec tmux new-session -A -s claude-session-1; fi' \
+    >> /home/claude/.profile
+
 # SSH setup requires root
 USER root
 RUN mkdir -p /var/run/sshd \
