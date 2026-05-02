@@ -45,7 +45,7 @@ RUN usermod -l claude ubuntu && \
     usermod -d /home/claude -m claude && \
     groupmod -n claude ubuntu
 
-# Switch to claude for nvm + Node + global npm packages
+# Troca para o usuário claude para instalar nvm, Node e pacotes npm globais
 USER claude
 WORKDIR /home/claude
 
@@ -55,15 +55,17 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | b
     && nvm alias default 22 \
     && npm install -g @anthropic-ai/claude-code@latest playwright@latest get-shit-done-cc@latest
 
-# Make nvm available in login shells (SSH sessions source .profile)
+# Disponibiliza o nvm em shells de login; sessões SSH carregam .profile
 RUN echo '. "$NVM_DIR/nvm.sh"' >> /home/claude/.profile
 
-# Auto-attach to (or create) a persistent tmux session on SSH login
-RUN echo 'if [ -n "$SSH_CONNECTION" ] && [ -z "$TMUX" ]; then exec tmux new-session -A -s claude-session-1; fi' \
+# Mostra o seletor de sessões tmux persistentes ao entrar por SSH
+RUN echo 'if [ -n "$SSH_CONNECTION" ] && [ -z "$TMUX" ]; then exec claude-tmux-menu; fi' \
     >> /home/claude/.profile
 
-# SSH setup requires root
+# A configuração de SSH exige root
 USER root
+COPY claude-tmux-menu /usr/local/bin/claude-tmux-menu
+RUN chmod +x /usr/local/bin/claude-tmux-menu
 RUN mkdir -p /var/run/sshd \
     && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config \
     && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config \

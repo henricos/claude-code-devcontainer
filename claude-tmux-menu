@@ -1,0 +1,69 @@
+#!/bin/bash
+set -u
+
+readonly SESSION_PREFIX="claude-session"
+readonly SESSION_LIMIT=3
+
+session_exists() {
+    tmux has-session -t "$1" 2>/dev/null
+}
+
+first_available_choice() {
+    local i
+    local session
+
+    for i in $(seq 1 "$SESSION_LIMIT"); do
+        session="${SESSION_PREFIX}-${i}"
+        if ! session_exists "$session"; then
+            echo "$i"
+            return
+        fi
+    done
+
+    echo "1"
+}
+
+open_session() {
+    local choice="$1"
+    exec tmux new-session -A -s "${SESSION_PREFIX}-${choice}"
+}
+
+if [ ! -t 0 ]; then
+    open_session "1"
+fi
+
+while true; do
+    default_choice="$(first_available_choice)"
+
+    echo
+    echo "Sessões persistentes do Claude"
+    echo
+
+    for i in $(seq 1 "$SESSION_LIMIT"); do
+        session="${SESSION_PREFIX}-${i}"
+        if session_exists "$session"; then
+            status="em uso"
+        else
+            status="disponível"
+        fi
+
+        printf "%s) %s  %s\n" "$i" "$session" "$status"
+    done
+
+    echo
+    read -r -p "Escolha uma sessão [1-3] ou pressione Enter para usar a primeira disponível: " choice
+
+    if [ -z "$choice" ]; then
+        choice="$default_choice"
+    fi
+
+    case "$choice" in
+        1|2|3)
+            open_session "$choice"
+            ;;
+        *)
+            echo
+            echo "Opção inválida. Escolha 1, 2 ou 3."
+            ;;
+    esac
+done

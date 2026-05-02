@@ -4,6 +4,15 @@
 
 A Docker image that packages Claude Code (Anthropic CLI) with a full development toolchain into a persistent, SSH-accessible workstation. The image is designed to run 24/7 in a homelab environment and is published to GHCR via GitHub Actions.
 
+## Idioma
+
+Este repositório adota uma política de idioma híbrida:
+
+- **Estrutura do projeto** (nomes de pastas, arquivos de código, configs, nomes de documentos técnicos): **inglês**.
+- **Conteúdo escrito** (textos, commits, mensagens ao usuário, documentação e comunicação no chat): **português do Brasil (`pt-BR`)**.
+
+A única exceção admissível são jargões tecnológicos globais enraizados que soem puramente artificiais em português, como `build`, `entrypoint`, `workflow`, `tag`, `push`, `pipeline` ou trechos de código exatos. Referências externas podem ser capturadas no idioma original; metadados, títulos criados pela IA e textos autorais do sistema continuam em `pt-BR`.
+
 ## Repository structure
 
 ```

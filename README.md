@@ -154,6 +154,8 @@ Host claude-workstation
 
 Depois basta usar `ssh claude-workstation`. O prompt dentro do container será `claude@workstation`.
 
+Ao entrar por SSH, o container mostra um seletor com até três sessões tmux persistentes: `claude-session-1`, `claude-session-2` e `claude-session-3`. Escolha uma sessão existente para continuar de onde parou ou escolha uma sessão disponível para criá-la. Pressionar Enter usa a primeira sessão disponível.
+
 No primeiro acesso, execute `claude` para autenticar com sua conta Anthropic. A sessão persiste entre reinicializações pelo volume `~/.claude`.
 
 ### 6. Validar a configuração
