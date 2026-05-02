@@ -31,7 +31,7 @@ A Docker image that packages Claude Code (Anthropic CLI) with a full development
 | Containers | docker CLI (no daemon — connects via socket volume) |
 | Media | yt-dlp |
 | Browser automation | playwright (npm global) |
-| AI | Claude Code (`claude` CLI) |
+| AI | Claude Code (`claude` CLI), GSD installer (`get-shit-done-cc`) |
 
 ## Local build
 

@@ -14,7 +14,7 @@ Uma imagem Docker que executa o [Claude Code](https://claude.ai/code) como uma e
 | Containers | docker CLI |
 | Mídia | yt-dlp |
 | Automação de browser | playwright |
-| IA | Claude Code CLI |
+| IA | Claude Code CLI, GSD installer CLI |
 
 O container roda como usuário não-root (`claude`, UID 1000) e expõe SSH na porta 22. Nenhuma configuração de MCP ou do Claude é embutida na imagem — tudo fica em um volume persistente montado em `/home/claude/.claude`.
 

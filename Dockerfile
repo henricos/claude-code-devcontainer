@@ -53,7 +53,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | b
     && . $NVM_DIR/nvm.sh \
     && nvm install 22 \
     && nvm alias default 22 \
-    && npm install -g @anthropic-ai/claude-code playwright
+    && npm install -g @anthropic-ai/claude-code@latest playwright@latest get-shit-done-cc@latest
 
 # Make nvm available in login shells (SSH sessions source .profile)
 RUN echo '. "$NVM_DIR/nvm.sh"' >> /home/claude/.profile
