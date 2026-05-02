@@ -65,6 +65,17 @@ O GitHub Actions valida que `VERSION` corresponde à tag, depois constrói e pub
 - `ghcr.io/henricos/claude-workstation:v1.1.0`
 - `ghcr.io/henricos/claude-workstation:latest`
 
+## Commits
+
+- Mensagens sempre em **pt-BR**.
+- Formato **Conventional Commits**: `tipo: assunto conciso` (assunto até ~72 caracteres).
+- Tipos válidos: `feat`, `fix`, `docs`, `refactor`, `chore`.
+- A mensagem inteira deve usar **presente do indicativo na terceira pessoa do singular**, descrevendo o que o commit faz: `adiciona`, `corrige`, `atualiza`, `remove`, `refatora`, `documenta`.
+- Não use imperativo na mensagem: evite `adicione`, `corrija`, `atualize`, `remova`, `refatore`, `documente`.
+- Corpo obrigatório, com um parágrafo curto resumindo o objetivo da mudança e uma lista de bullets descrevendo as mudanças realizadas.
+- Antes de executar `commit` ou `commit + push`, apresente a mensagem proposta e aguarde aprovação explícita do operador.
+- Use arquivos explícitos no `git add`; não use staging amplo como `git add .`.
+
 ## Fechar uma versão (guia para o agente)
 
 Este guia define o fluxo canônico que o agente deve seguir quando o usuário pedir para fechar uma versão, soltar uma release, criar uma tag ou publicar uma nova imagem.
