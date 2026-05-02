@@ -1,59 +1,59 @@
-# Agent Context: claude-workstation
+# Contexto do agente: claude-workstation
 
-## What this repository is
+## O que é este repositório
 
-A Docker image that packages Claude Code (Anthropic CLI) with a full development toolchain into a persistent, SSH-accessible workstation. The image is designed to run 24/7 in a homelab environment and is published to GHCR via GitHub Actions.
+Uma imagem Docker que empacota o Claude Code (CLI da Anthropic) com um conjunto completo de ferramentas de desenvolvimento em uma estação de trabalho persistente e acessível via SSH. A imagem foi pensada para rodar 24/7 em ambiente homelab e é publicada no GHCR via GitHub Actions.
 
 ## Idioma
 
 Este repositório adota uma política de idioma híbrida:
 
-- **Estrutura do projeto** (nomes de pastas, arquivos de código, configs, nomes de documentos técnicos): **inglês**.
-- **Conteúdo escrito** (textos, commits, mensagens ao usuário, documentação e comunicação no chat): **português do Brasil (`pt-BR`)**.
+- **Estrutura e código do projeto** (nomes de pastas, arquivos de código, configs, nomes de documentos técnicos, variáveis, comentários dentro de arquivos de código e comentários operacionais dentro de arquivos de configuração): **inglês**.
+- **Conteúdo escrito para humanos** (documentação narrativa, commits, mensagens ao usuário, comunicação no chat, exemplos explicativos e comentários em blocos de documentação): **português do Brasil (`pt-BR`)**.
 
 A única exceção admissível são jargões tecnológicos globais enraizados que soem puramente artificiais em português, como `build`, `entrypoint`, `workflow`, `tag`, `push`, `pipeline` ou trechos de código exatos. Referências externas podem ser capturadas no idioma original; metadados, títulos criados pela IA e textos autorais do sistema continuam em `pt-BR`.
 
-## Repository structure
+## Estrutura do repositório
 
 ```
 .
-├── Dockerfile              # Image definition
-├── entrypoint.sh           # Container startup (starts sshd)
-├── compose.example.yml     # Deployment reference for Portainer / Docker Compose
-├── VERSION                 # Single source of truth for the image version
+├── Dockerfile              # definição da imagem
+├── entrypoint.sh           # inicialização do container (sobe o sshd)
+├── compose.example.yml     # referência de deploy para Portainer / Docker Compose
+├── VERSION                 # fonte única da versão da imagem
 ├── .github/
 │   └── workflows/
-│       └── release-ghcr.yml  # CI/CD: build and publish on tag push
-├── CLAUDE.md               # Loads this file via @AGENTS.md
-└── AGENTS.md               # This file
+│       └── release-ghcr.yml  # CI/CD: build e publicação em push de tag
+├── CLAUDE.md               # carrega este arquivo via @AGENTS.md
+└── AGENTS.md               # este arquivo
 ```
 
-## What's installed in the image
+## O que está instalado na imagem
 
-| Category | Tools |
+| Categoria | Ferramentas |
 |---|---|
-| Shell & system | bash, tmux, htop, nano/pico |
-| Version control | git, gh (GitHub CLI) |
+| Shell e sistema | bash, tmux, htop, nano/pico |
+| Controle de versão | git, gh (GitHub CLI) |
 | Node.js | nvm (default: Node 22), npm, npx |
 | Python | python3, pip, venv, uv |
-| Data tools | jq, yq |
-| Containers | docker CLI (no daemon — connects via socket volume) |
-| Media | yt-dlp |
-| Browser automation | playwright (npm global) |
-| AI | Claude Code (`claude` CLI), GSD installer (`get-shit-done-cc`) |
+| Ferramentas de dados | jq, yq |
+| Containers | docker CLI (sem daemon — conecta via volume do socket) |
+| Mídia | yt-dlp |
+| Automação de browser | playwright (npm global) |
+| IA | Claude Code (`claude` CLI), instalador do GSD (`get-shit-done-cc`) |
 
-## Local build
+## Build local
 
 ```bash
 docker build -t claude-workstation .
 ```
 
-## Release workflow
+## Fluxo de release
 
-To publish a new image version:
+Para publicar uma nova versão da imagem:
 
-1. Update `VERSION` with the new semver (e.g. `1.1.0`)
-2. Commit, tag, and push:
+1. Atualize `VERSION` com o novo semver (ex: `1.1.0`)
+2. Faça commit, crie a tag e publique:
 
 ```bash
 git commit -am "chore: bump version to 1.1.0"
@@ -61,7 +61,7 @@ git tag v1.1.0
 git push && git push --tags
 ```
 
-GitHub Actions validates that `VERSION` matches the tag, then builds and pushes:
+O GitHub Actions valida que `VERSION` corresponde à tag, depois constrói e publica:
 - `ghcr.io/henricos/claude-workstation:v1.1.0`
 - `ghcr.io/henricos/claude-workstation:latest`
 
@@ -139,10 +139,10 @@ Aguarde a conclusão do workflow antes de declarar sucesso. Se o workflow falhar
 
 Apresente um resumo com: versão anterior, nova versão, tipo de bump, commit, tag, status do workflow e tags confirmadas no GHCR.
 
-## Conventions
+## Convenções
 
-- The non-root user inside the container is `claude` (home: `/home/claude`)
-- SSH port inside the container is `22`; mapped to `2222` externally in the compose example
-- `~/.claude` is always a volume — never bake MCP or GSD config into the image
-- All apt layers that change rarely come before nvm/npm layers to maximize cache hits
-- The workflow triggers only on tag push (`v*.*.*`) — no CI runs on plain commits to main
+- O usuário não-root dentro do container é `claude` (home: `/home/claude`).
+- A porta SSH dentro do container é `22`; no exemplo de Compose, ela é mapeada externamente para `2222`.
+- `~/.claude` é sempre um volume — nunca embuta configuração de MCP ou GSD na imagem.
+- Todas as camadas apt que mudam raramente vêm antes das camadas nvm/npm para maximizar cache.
+- O workflow dispara apenas em push de tag (`v*.*.*`) — não há CI em commits simples para `main`.
