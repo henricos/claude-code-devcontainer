@@ -61,7 +61,8 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | b
     && npm install -g @anthropic-ai/claude-code@latest playwright@latest get-shit-done-cc@latest
 
 # Disponibiliza o nvm em shells de login; sessões SSH carregam .profile
-RUN echo '. "$NVM_DIR/nvm.sh"' >> /home/claude/.profile
+RUN echo 'export NVM_DIR="/home/claude/.nvm"' >> /home/claude/.profile \
+    && echo '. "$NVM_DIR/nvm.sh"' >> /home/claude/.profile
 
 # Mostra o seletor de sessões tmux persistentes ao entrar por SSH
 RUN echo 'if [ -n "$SSH_CONNECTION" ] && [ -z "$TMUX" ]; then exec claude-tmux-menu; fi' \
