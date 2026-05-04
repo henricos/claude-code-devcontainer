@@ -19,8 +19,12 @@ A única exceção admissível são jargões tecnológicos globais enraizados qu
 .
 ├── Dockerfile              # definição da imagem
 ├── entrypoint.sh           # inicialização do container (sobe o sshd)
+├── claude-tmux-menu        # seletor de sessões tmux persistentes
 ├── compose.example.yml     # referência de deploy para Portainer / Docker Compose
 ├── VERSION                 # fonte única da versão da imagem
+├── docs/
+│   ├── setup.md            # guia de configuração e primeiro acesso
+│   └── release.md          # guia de fechamento de versão (siga este ao fazer release)
 ├── .github/
 │   └── workflows/
 │       └── release-ghcr.yml  # CI/CD: build e publicação em push de tag
@@ -28,42 +32,9 @@ A única exceção admissível são jargões tecnológicos globais enraizados qu
 └── AGENTS.md               # este arquivo
 ```
 
-## O que está instalado na imagem
-
-| Categoria | Ferramentas |
-|---|---|
-| Shell e sistema | bash, tmux, htop, nano/pico |
-| Controle de versão | git, gh (GitHub CLI) |
-| Node.js | nvm (default: Node 22), npm, npx |
-| Python | python3, pip, venv, uv |
-| Ferramentas de dados | jq, yq |
-| Containers | docker CLI (sem daemon — conecta via volume do socket) |
-| Mídia | yt-dlp |
-| Automação de browser | playwright (npm global) |
-| IA | Claude Code (`claude` CLI), instalador do GSD (`get-shit-done-cc`) |
-
-## Build local
-
-```bash
-docker build -t claude-workstation .
-```
-
 ## Fluxo de release
 
-Para publicar uma nova versão da imagem:
-
-1. Atualize `VERSION` com o novo semver (ex: `1.1.0`)
-2. Faça commit, crie a tag e publique:
-
-```bash
-git commit -am "chore: bump version to 1.1.0"
-git tag v1.1.0
-git push && git push --tags
-```
-
-O GitHub Actions valida que `VERSION` corresponde à tag, depois constrói e publica:
-- `ghcr.io/henricos/claude-workstation:v1.1.0`
-- `ghcr.io/henricos/claude-workstation:latest`
+Quando o usuário pedir para fechar uma versão, soltar uma release, criar uma tag ou publicar uma nova imagem, siga **obrigatoriamente** o guia em [`docs/release.md`](docs/release.md). Não improvise nem abrevie os passos — o guia contém pré-condições e gates que evitam publicação de código quebrado.
 
 ## Commits
 
@@ -76,79 +47,6 @@ O GitHub Actions valida que `VERSION` corresponde à tag, depois constrói e pub
 - Antes de executar `commit` ou `commit + push`, apresente a mensagem proposta e aguarde aprovação explícita do operador.
 - Use arquivos explícitos no `git add`; não use staging amplo como `git add .`.
 
-## Fechar uma versão (guia para o agente)
-
-Este guia define o fluxo canônico que o agente deve seguir quando o usuário pedir para fechar uma versão, soltar uma release, criar uma tag ou publicar uma nova imagem.
-
-**Regras invioláveis:**
-- Nunca prossiga se a branch atual não for `main`.
-- Nunca prossiga se `main` local não estiver alinhada com `origin/main`.
-- Nunca prossiga se a working tree não estiver limpa.
-- Nunca faça commit, stash ou reset automático para "destravar" a release.
-
-### Passo 1 — Verificar pré-condições
-
-```bash
-git branch --show-current
-git fetch origin
-git rev-parse HEAD
-git rev-parse origin/main
-git diff --quiet && git diff --cached --quiet
-```
-
-Aborte com mensagem clara se qualquer condição não for atendida.
-
-### Passo 2 — Determinar a próxima versão
-
-Leia a versão atual do arquivo `VERSION` e calcule as três opções canônicas. Pergunte ao usuário qual bump aplicar antes de continuar:
-
-- `patch` — correções e ajustes menores
-- `minor` — novas funcionalidades sem quebra de compatibilidade
-- `major` — mudanças que alteram o comportamento de forma significativa
-
-Confirme a versão escolhida antes de executar qualquer comando.
-
-### Passo 3 — Gate local
-
-Execute o build local para garantir que a imagem constrói sem erros antes de criar a tag:
-
-```bash
-docker build -t claude-workstation:release-gate .
-```
-
-Se o build falhar, **aborte**. Não crie tag sobre código que não builda.
-
-### Passo 4 — Aplicar o bump
-
-Atualize o arquivo `VERSION`, faça o commit e crie a tag:
-
-```bash
-echo "X.Y.Z" > VERSION
-git add VERSION
-git commit -m "chore: bump version to X.Y.Z"
-git tag vX.Y.Z
-```
-
-### Passo 5 — Publicar
-
-```bash
-git push && git push --tags
-```
-
-Se o push falhar, **aborte** e informe que a cadeia externa não foi disparada.
-
-### Passo 6 — Validar a cadeia externa
-
-Após o push, confirme:
-
-1. **GitHub Actions** — existe uma run do workflow `Build and Release` para a tag; o job terminou com `success`.
-2. **GHCR** — o pacote `ghcr.io/henricos/claude-workstation` tem as tags `vX.Y.Z` e `latest` publicadas e visibilidade `Public`.
-
-Aguarde a conclusão do workflow antes de declarar sucesso. Se o workflow falhar, reporte e pare.
-
-### Passo 7 — Resumo final
-
-Apresente um resumo com: versão anterior, nova versão, tipo de bump, commit, tag, status do workflow e tags confirmadas no GHCR.
 
 ## Convenções
 

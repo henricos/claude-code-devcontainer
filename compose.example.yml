@@ -5,9 +5,9 @@ services:
     hostname: workstation
     volumes:
       # Claude Code config, OAuth login, memory, and settings
-      - /opt/claude-workstation/claude:/home/claude/.claude
+      - /opt/claude-workstation/.claude:/home/claude/.claude
       # SSH keys directory: authorized_keys (inbound access) + private key for GitHub (outbound access)
-      - /opt/claude-workstation/ssh:/home/claude/.ssh
+      - /opt/claude-workstation/.ssh:/home/claude/.ssh
       # Git identity used by the agent when committing
       - /opt/claude-workstation/gitconfig:/home/claude/.gitconfig:ro
       # Your code repositories
