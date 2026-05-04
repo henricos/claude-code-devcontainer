@@ -4,6 +4,23 @@
 
 Uma imagem Docker que empacota o Claude Code (CLI da Anthropic) com um conjunto completo de ferramentas de desenvolvimento em uma estação de trabalho persistente e acessível via SSH. A imagem foi pensada para rodar 24/7 em ambiente homelab e é publicada no GHCR via GitHub Actions.
 
+## Estratégia de IA agnóstica
+
+Este repositório adota uma estratégia agnóstica de ferramenta para suportar múltiplas IAs sem duplicar instruções.
+
+**Fontes de verdade editáveis:**
+
+- `AGENTS.md` - regras operacionais comuns a qualquer agente.
+- `.agents/skills/` - implementações padronizadas dos fluxos operacionais.
+
+Arquivos de compatibilidade como `CLAUDE.md` e diretórios de ferramenta são apenas apontamentos para essas fontes de verdade. Nunca edite os apontamentos diretamente quando a intenção for mudar regras ou skills.
+
+**Como cada ferramenta carrega as instruções e as skills:**
+
+- **Claude Code** - carrega as regras por meio de `CLAUDE.md`, que inclui `@AGENTS.md`; skills via `.claude/skills`, que aponta para `.agents/skills`.
+- **Cursor** - lê `AGENTS.md` como arquivo nativo de instruções; skills via `.cursor/skills`, que aponta para `.agents/skills`.
+- **Codex CLI / outras ferramentas** - leem `AGENTS.md` diretamente; skills de `.agents/skills`.
+
 ## Idioma
 
 Este repositório adota uma política de idioma híbrida:
