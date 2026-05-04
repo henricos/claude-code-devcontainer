@@ -52,7 +52,7 @@ Se o build falhar, **aborte**. Não crie tag sobre código que não builda.
 
 ## Passo 4 — Aplicar o bump
 
-Atualize o arquivo `VERSION`, faça o commit e crie a tag:
+Atualize o arquivo `VERSION` e faça o commit:
 
 > **Execute no servidor de desenvolvimento**
 
@@ -60,18 +60,20 @@ Atualize o arquivo `VERSION`, faça o commit e crie a tag:
 echo "X.Y.Z" > VERSION
 git add VERSION
 git commit -m "chore: bump version para X.Y.Z"
-git tag vX.Y.Z
+git push
 ```
 
 ## Passo 5 — Publicar
 
+Crie a release no GitHub. Isso cria a tag automaticamente e dispara o workflow de build:
+
 > **Execute no servidor de desenvolvimento**
 
 ```bash
-git push && git push --tags
+gh release create vX.Y.Z --title "vX.Y.Z" --notes "Resumo das mudanças desta versão."
 ```
 
-Se o push falhar, **aborte** e investigue antes de tentar novamente.
+Se o comando falhar, **aborte** e investigue antes de tentar novamente.
 
 ## Passo 6 — Validar a cadeia externa
 

@@ -1,6 +1,14 @@
+<div align="center">
+
 # claude-workstation
 
-Uma imagem Docker que executa o [Claude Code](https://claude.ai/code) como uma estação de trabalho de IA persistente. Acesso via SSH, sessões tmux persistentes e um conjunto completo de ferramentas de desenvolvimento prontas para uso.
+Uma imagem Docker que executa o [Claude Code](https://claude.ai/code) como uma estação de trabalho de IA persistente.<br>Acesso via SSH, sessões tmux persistentes e um conjunto completo de ferramentas de desenvolvimento prontas para uso.
+
+[![Build](https://github.com/henricos/claude-workstation/actions/workflows/release-ghcr.yml/badge.svg)](https://github.com/henricos/claude-workstation/actions/workflows/release-ghcr.yml)
+[![Version](https://img.shields.io/github/v/release/henricos/claude-workstation)](https://github.com/henricos/claude-workstation/releases)
+[![Image size](https://ghcr-badge.egpl.dev/henricos/claude-workstation/size)](https://github.com/henricos/claude-workstation/pkgs/container/claude-workstation)
+
+</div>
 
 ## Ferramentas incluídas
 
@@ -26,6 +34,6 @@ Consulte o [guia de configuração](docs/setup.md) para o passo a passo completo
 
 ## Publicar uma nova versão da imagem
 
-O fluxo de release usa o arquivo `VERSION` como fonte de verdade. O GitHub Actions valida que o conteúdo do arquivo bate com a tag Git antes de publicar — o workflow `Build and Release` é disparado apenas por push de tag e publica no GHCR com a tag de versão e `latest`.
+O fluxo de release usa o arquivo `VERSION` como fonte de verdade. O GitHub Actions valida que o conteúdo do arquivo bate com a tag antes de publicar — o workflow `Build and Release` é disparado pela criação de uma GitHub Release e publica no GHCR com a tag de versão e `latest`.
 
 Consulte o [guia de release](docs/release.md) para o passo a passo completo, incluindo pré-condições, gate local de build e validação da cadeia externa.
