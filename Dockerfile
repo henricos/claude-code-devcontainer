@@ -4,6 +4,8 @@ ARG IMAGE_VERSION=dev
 ARG BUILD_DATE
 
 ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=pt_BR.UTF-8 \
+    LC_ALL=pt_BR.UTF-8 \
     NVM_DIR=/home/claude/.nvm
 
 # System packages — changes rarely, kept first for cache efficiency
@@ -12,6 +14,9 @@ RUN apt-get update && apt-get install -y \
     openssh-server \
     python3 python3-pip python3-venv \
     tmux htop nano jq build-essential \
+    locales \
+    && locale-gen pt_BR.UTF-8 \
+    && update-locale LANG=pt_BR.UTF-8 LC_ALL=pt_BR.UTF-8 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # yq — YAML processor
